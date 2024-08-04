@@ -20,7 +20,7 @@ export const Form = () => {
     fileInputRef,
   } = useFormContext();
   const today = new Date().toISOString().split("T")[0];
-  console.log(state.errors);
+  // console.log(state.errors);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -73,6 +73,8 @@ export const Form = () => {
 
     saveToLocalStorage(submissionData);
     const newdata = loadFromLocalStorage();
+    console.log(newdata);
+    
     setData(newdata);
     resetForm();
     alert("Form submitted successfully");
@@ -234,13 +236,13 @@ export const Form = () => {
             onBlur={handleBlur}
           >
             <option value="">Select Province</option>
-            <option value="1">Koshi</option>
-            <option value="2">Madhesh</option>
-            <option value="3">Bagmati</option>
-            <option value="4">Gandaki</option>
-            <option value="5">Lumbini</option>
-            <option value="6">Karnali</option>
-            <option value="7">SudurPaschim</option>
+            <option value="Koshi">Koshi</option>
+            <option value="Madhesh">Madhesh</option>
+            <option value="Bagmati">Bagmati</option>
+            <option value="Gandaki">Gandaki</option>
+            <option value="Lumbini">Lumbini</option>
+            <option value="Karnali">Karnali</option>
+            <option value="SudurPaschim">SudurPaschim</option>
           </select>
           {state.errors.province && (
             <p className="text-red-500 text-xs">{state.errors.province}</p>

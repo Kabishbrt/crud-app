@@ -1,185 +1,197 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDataContext } from "../context/DataContext";
+import { TABLE_HEAD } from "../utils/LocalStorage";
+import { Link } from "react-router-dom";
 
-export function Table() {
-  const { data } = useDataContext();
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Adjust this value to change the number of items per page
+export const Table = ({ onEdit }) => {
+  const { data, setData } = useDataContext(); // Assuming setData is provided in the context
+  const [rowsLimit] = useState(5);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredData, setFilteredData] = useState(data);
+  const [rowsToShow, setRowsToShow] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPage, setTotalPage] = useState(0);
 
-  // Calculate the total number of pages
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  useEffect(() => {
+    // Filter data based on search query
+    const lowercasedQuery = searchQuery.toLowerCase();
+    const newFilteredData = data.filter((item) =>
+      Object.values(item).some((value) => {
+        const lowercasedValue = value.toString().toLowerCase();
+        return lowercasedValue.startsWith(lowercasedQuery);
+      })
+    );
 
-  // Get the items for the current page
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = [...data].reverse().slice(startIndex, startIndex + itemsPerPage);
+    setFilteredData(newFilteredData);
 
-  const handleEdit = (email) => {
-    console.log(`Edit ${email}`);
+    // Calculate total pages and reset the current page
+    const newTotalPage = Math.ceil(newFilteredData.length / rowsLimit);
+    setTotalPage(newTotalPage);
+    setCurrentPage(0); // Reset to the first page
+
+    // Set rows to show for the first page
+    setRowsToShow(newFilteredData.slice(0, rowsLimit));
+  }, [data, searchQuery, rowsLimit]);
+
+  useEffect(() => {
+    // Update rows to show when the current page changes
+    const startIndex = rowsLimit * currentPage;
+    const endIndex = startIndex + rowsLimit;
+    setRowsToShow(filteredData.slice(startIndex, endIndex));
+  }, [currentPage, filteredData, rowsLimit]);
+
+  const nextPage = () => {
+    if (currentPage < totalPage - 1) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
-  const handleDelete = (email) => {
-    console.log(`Delete ${email}`);
-  };
-
-  const handlePrevious = () => {
-    if (currentPage > 1) {
+  const previousPage = () => {
+    if (currentPage > 0) {
       setCurrentPage(currentPage - 1);
     }
   };
 
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleDelete = (index) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this item?"
+    );
+    if (confirmDelete) {
+      // Remove item from filtered data
+      const newFilteredData = filteredData.filter((_, i) => i !== index);
+      setFilteredData(newFilteredData);
+
+      // Remove item from original data
+      const newData = data.filter((_, i) => i !== index);
+      setData(newData);
+
+      // Update localStorage
+      localStorage.setItem("formSubmissions", JSON.stringify(newData));
     }
   };
 
   return (
     <>
-      <div className="w-full flex flex-row justify-between items-center mt-10 px-4">
-        <div className="flex-shrink-0">
-          <span className="text-gray-700 text-xs font-bold">
-            Page {currentPage} of {totalPages}
-          </span>
-        </div>
-        <div className="flex mb-4 flex-shrink-0">
-          <input
-            type="text"
-            placeholder="Search Name or Email"
-            className="w-full md:w-72 px-3 py-2 border border-gray-300 rounded-lg text-sm"
-          />
+      <div className="h-auto w-full bg-white flex justify-center mt-20 pb-14">
+        <div className="w-full w-4xl px-2">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-xl font-medium">Registration List</h1>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              placeholder="Search..."
+              className="px-3 py-2 text-sm border border-gray-400 rounded-lg shadow-sm"
+            />
+          </div>
+          <div className="w-full overflow-x-scroll md:overflow-auto max-w-7xl 2xl:max-w-none mt-2 shadow-md">
+            <table className="table-auto overflow-scroll md:overflow-auto w-full text-left font-inter border">
+              <thead className="rounded-lg text-sm text-white font-semibold w-full">
+                <tr className="bg-[#222E3A]/[6%]">
+                  {TABLE_HEAD.map((header) => (
+                    <th
+                      key={header}
+                      className="py-3 px-3 text-[#212B36] text-sm font-bold whitespace-nowrap border-b border-[#B0B0B0]"
+                    >
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                {rowsToShow?.map((item, index) => (
+                  <tr className="border-b border-[#B0B0B0]" key={index}>
+                    <td className="py-2 px-8 border-t whitespace-nowrap">
+                      <img
+                        src={item.profilePic}
+                        alt={item.name}
+                        className="w-12 h-12 rounded-full"
+                      />
+                    </td>
+                    <td className="py-2 px-3 border-t whitespace-nowrap">
+                      {item.name}
+                    </td>
+                    <td className="py-2 px-3 border-t whitespace-nowrap">
+                      {item.email}
+                    </td>
+                    <td className="py-2 px-3 border-t whitespace-nowrap">
+                      {item.phone}
+                    </td>
+                    <td className="py-2 px-3 border-t whitespace-nowrap">
+                      {item.dob}
+                    </td>
+                    <td className="py-2 px-3 border-t whitespace-nowrap">
+                      {item.city}
+                    </td>
+                    <td className="py-2 px-3 border-t whitespace-nowrap">
+                      {item.district}
+                    </td>
+                    <td className="py-2 px-3 border-t whitespace-nowrap">
+                      {item.province}
+                    </td>
+                    <td className="py-2 px-3 border-t whitespace-nowrap">
+                      {item.country}
+                    </td>
+                    <td className="py-2 px-3 border-t whitespace-nowrap">
+                      <button className="text-blue-500 hover:text-blue-700 mr-2">
+                        <Link to={`/edit/${index}`}>Edit</Link>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="w-full flex justify-center sm:justify-between flex-col sm:flex-row gap-5 mt-1.5 px-1 items-center">
+            <div className="text-sm">
+              Showing {currentPage === 0 ? 1 : currentPage * rowsLimit + 1} to{" "}
+              {currentPage === totalPage - 1
+                ? filteredData.length
+                : (currentPage + 1) * rowsLimit}{" "}
+              of {filteredData.length} entries
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={previousPage}
+                className={`px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-400 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  currentPage === 0 ? "opacity-60 cursor-not-allowed" : ""
+                }`}
+                disabled={currentPage === 0}
+              >
+                Previous
+              </button>
+              <button
+                onClick={nextPage}
+                className={`px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-400 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  currentPage === totalPage - 1
+                    ? "opacity-60 cursor-not-allowed"
+                    : ""
+                }`}
+                disabled={currentPage === totalPage - 1}
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="w-full max-w-full overflow-x-auto p-2">
-        <table className="w-full min-w-max table-auto text-left border-collapse text-sm shadow-md">
-          <thead>
-            <tr>
-              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
-                Profile Picture
-              </th>
-              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
-                Name
-              </th>
-              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
-                Email
-              </th>
-              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
-                Phone
-              </th>
-              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
-                Date of Birth
-              </th>
-              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
-                City
-              </th>
-              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
-                District
-              </th>
-              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
-                Province
-              </th>
-              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
-                Country
-              </th>
-              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.length > 0 ? (
-              currentItems.map(
-                ({
-                  profilePic,
-                  name,
-                  email,
-                  phone,
-                  dob,
-                  city,
-                  district,
-                  province,
-                  country,
-                }) => {
-                  const rowClass = "p-3";
-
-                  return (
-                    <tr key={email}>
-                      <td className={rowClass}>
-                        <img
-                          src={profilePic}
-                          alt={name}
-                          className="w-16 h-16 rounded-full border border-gray-200 object-cover"
-                        />
-                      </td>
-                      <td className={rowClass}>{name}</td>
-                      <td className={rowClass}>{email}</td>
-                      <td className={rowClass}>{phone}</td>
-                      <td className={rowClass}>
-                        {dob ? new Date(dob).toLocaleDateString() : "N/A"}
-                      </td>
-                      <td className={rowClass}>{city}</td>
-                      <td className={rowClass}>{district}</td>
-                      <td className={rowClass}>{province}</td>
-                      <td className={rowClass}>{country}</td>
-                      <td className={rowClass}>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleEdit(email)}
-                            className="px-2 py-1 border border-blue-500 text-blue-500 rounded-lg text-xs hover:bg-blue-50"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(email)}
-                            className="px-2 py-1 border border-red-500 text-red-500 rounded-lg text-xs hover:bg-red-50"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                }
-              )
-            ) : (
-              <tr>
-                <td
-                  colSpan={10} // Updated to match the number of columns
-                  className="text-center p-4 text-gray-500"
-                >
-                  No data available
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        <div className="flex items-center justify-between border-t border-gray-200 p-4 mt-4">
-          {currentPage === 1 ? (
-            <div></div>
-          ) : (
-            <button
-              onClick={handlePrevious}
-              disabled={currentPage === 1}
-              className="px-4 py-2 text-white border rounded-lg bg-blue-500 hover:bg-blue-600 text-xs"
-            >
-              Previous
-            </button>
-          )}
-          {
-            currentPage === totalPages ?(
-              <div></div>
-            ):(
-              <button
-              onClick={handleNext}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 text-white border rounded-lg bg-blue-500 hover:bg-blue-600 text-xs"
-            >
-              Next
-            </button>
-            )
-          }
-
-        </div>
+      <div>
+        <Link to="/profiles">
+          <button className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 text-sm">
+            Profiles
+          </button>
+        </Link>
       </div>
     </>
   );
-}
+};

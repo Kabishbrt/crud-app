@@ -5,7 +5,7 @@ export const loadFromLocalStorage = () => {
   
   export const saveToLocalStorage = (submission) => {
     const data = loadFromLocalStorage();
-    data.push(submission);
+    data.unshift(submission); // Add the new submission to the top of the array
     localStorage.setItem("formSubmissions", JSON.stringify(data));
   };
   
