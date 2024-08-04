@@ -2,7 +2,11 @@ export const validateField = (field, value) => {
     let error = "";
     switch (field) {
       case "name":
-        if (!value) error = "Name is required";
+        if (!value) {
+          error = "Name is required";
+        } else if (/[\d]/.test(value)) {
+          error = "Name cannot contain numbers";
+        }
         break;
       case "email":
         if (!value) error = "Email is required";
@@ -10,7 +14,7 @@ export const validateField = (field, value) => {
         break;
       case "phone":
         if (!value) error = "Phone number is required";
-        else if (value.length<7) error = "Phone number must be at least 7 digits";
+        else if (!/^\d{7,}$/.test(value)) error = "Phone number must be at least 7 digits and contain only numbers";
         break;
       default:
         break;

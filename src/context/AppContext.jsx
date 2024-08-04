@@ -1,6 +1,11 @@
-import React, { createContext, useReducer, useContext, useEffect, useRef } from "react";
+import React, {
+  createContext,
+  useReducer,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 import { validateFile } from "../utils/Validation";
-
 
 const initialState = {
   name: "",
@@ -46,7 +51,10 @@ function formReducer(state, action) {
         countries: action.countries,
       };
     case "RESET_FORM":
-      return initialState;
+      return {
+        ...initialState,
+        countries: state.countries, // Keep existing countries
+      };
     default:
       return state;
   }
@@ -63,13 +71,13 @@ export const FormProvider = ({ children }) => {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await fetch('https://restcountries.com/v3.1/all');
+        const response = await fetch("https://restcountries.com/v3.1/all");
         const data = await response.json();
         console.log(data);
-        
-        dispatch({ type: 'SET_COUNTRIES', countries: data });
+
+        dispatch({ type: "SET_COUNTRIES", countries: data });
       } catch (error) {
-        console.error('Error fetching countries:', error);
+        console.error("Error fetching countries:", error);
       }
     };
 
@@ -95,14 +103,24 @@ export const FormProvider = ({ children }) => {
   const resetForm = () => {
     // Clear the file input field
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
     // Reset the form state
     dispatch({ type: "RESET_FORM" });
   };
 
   return (
-    <FormContext.Provider value={{ state, setField, setFieldError, setErrors, setProfilePic, resetForm, fileInputRef }}>
+    <FormContext.Provider
+      value={{
+        state,
+        setField,
+        setFieldError,
+        setErrors,
+        setProfilePic,
+        resetForm,
+        fileInputRef,
+      }}
+    >
       {children}
     </FormContext.Provider>
   );

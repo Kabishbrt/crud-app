@@ -1,18 +1,30 @@
 import React from "react";
 import { useFormContext } from "../context/AppContext";
 import { validateField, validateFile } from "../utils/Validation";
-import { convertFileToBase64, loadFromLocalStorage, saveToLocalStorage } from "../utils/LocalStorage";
+import {
+  convertFileToBase64,
+  loadFromLocalStorage,
+  saveToLocalStorage,
+} from "../utils/LocalStorage";
 import { useDataContext } from "../context/DataContext";
 
 export const Form = () => {
-  const {setData} = useDataContext();
-  const { state, setField, setProfilePic, setErrors, setFieldError, resetForm, fileInputRef} =
-    useFormContext();
+  const { setData } = useDataContext();
+  const {
+    state,
+    setField,
+    setProfilePic,
+    setErrors,
+    setFieldError,
+    resetForm,
+    fileInputRef,
+  } = useFormContext();
+  const today = new Date().toISOString().split("T")[0];
   console.log(state.errors);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    setField(id, value);  
+    setField(id, value);
   };
 
   const handleCountryChange = (event) => {
@@ -46,11 +58,14 @@ export const Form = () => {
     try {
       base64ProfilePic = await convertFileToBase64(state.profilePic);
     } catch (error) {
-      setErrors((prevErrors) => ({ ...prevErrors, profilePic: "Failed to encode profile picture" }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        profilePic: "Failed to encode profile picture",
+      }));
       return; // prevents form submission
     }
 
-    const {errors:__, countries:___, ...filteredstate} = state;
+    const { errors: __, countries: ___, ...filteredstate } = state;
     const submissionData = {
       ...filteredstate,
       profilePic: base64ProfilePic,
@@ -155,6 +170,7 @@ export const Form = () => {
             } rounded py-2 px-3 text-sm focus:outline-none focus:border-blue-500`}
             id="dob"
             type="date"
+            max={today}
             value={state.dob}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -218,13 +234,13 @@ export const Form = () => {
             onBlur={handleBlur}
           >
             <option value="">Select Province</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
+            <option value="1">Koshi</option>
+            <option value="2">Madhesh</option>
+            <option value="3">Bagmati</option>
+            <option value="4">Gandaki</option>
+            <option value="5">Lumbini</option>
+            <option value="6">Karnali</option>
+            <option value="7">SudurPaschim</option>
           </select>
           {state.errors.province && (
             <p className="text-red-500 text-xs">{state.errors.province}</p>

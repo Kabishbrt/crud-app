@@ -16,3 +16,15 @@ export const loadFromLocalStorage = () => {
     reader.onerror = (error) => reject(error);
   });
   
+export const TABLE_HEAD = [
+    "Profile Picture",
+    "Name",
+    "Email",
+    "Phone Number",
+    "DOB",
+    "City",
+    "District",
+    "Province",
+    "Country",
+    "Actions",
+  ];

@@ -1,22 +1,18 @@
-import React, { useContext } from "react";
-import { loadFromLocalStorage } from "../utils/LocalStorage";
+import React, { useState } from "react";
 import { useDataContext } from "../context/DataContext";
-
-const TABLE_HEAD = [
-  "Profile Picture",
-  "Name",
-  "Email",
-  "Phone Number",
-  "DOB",
-  "City",
-  "District",
-  "Province",
-  "Country",
-  "Actions",
-];
 
 export function Table() {
   const { data } = useDataContext();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Adjust this value to change the number of items per page
+
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+
+  // Get the items for the current page
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = [...data].reverse().slice(startIndex, startIndex + itemsPerPage);
+
   const handleEdit = (email) => {
     console.log(`Edit ${email}`);
   };
@@ -25,53 +21,85 @@ export function Table() {
     console.log(`Delete ${email}`);
   };
 
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
   return (
     <>
-      <div className="mt-10">
-        <p className="text-gray-500 text-sm">Details of registered users</p>
-      </div>
-      <div className="flex gap-2 mb-4">
-        <input
-          type="text"
-          placeholder="Search"
-          className="w-full md:w-72 px-3 py-2 border border-gray-300 rounded-lg text-sm"
-        />
+      <div className="w-full flex flex-row justify-between items-center mt-10 px-4">
+        <div className="flex-shrink-0">
+          <span className="text-gray-700 text-xs font-bold">
+            Page {currentPage} of {totalPages}
+          </span>
+        </div>
+        <div className="flex mb-4 flex-shrink-0">
+          <input
+            type="text"
+            placeholder="Search Name or Email"
+            className="w-full md:w-72 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+          />
+        </div>
       </div>
       <div className="w-full max-w-full overflow-x-auto p-2">
         <table className="w-full min-w-max table-auto text-left border-collapse text-sm shadow-md">
           <thead>
             <tr>
-              {TABLE_HEAD.map((head) => (
-                <th
-                  key={head}
-                  className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs"
-                >
-                  {head}
-                </th>
-              ))}
+              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
+                Profile Picture
+              </th>
+              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
+                Name
+              </th>
+              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
+                Email
+              </th>
+              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
+                Phone
+              </th>
+              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
+                Date of Birth
+              </th>
+              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
+                City
+              </th>
+              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
+                District
+              </th>
+              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
+                Province
+              </th>
+              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
+                Country
+              </th>
+              <th className="border-b border-gray-200 bg-gray-100 p-2 text-gray-700 text-xs">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
-            {data && data.length > 0 ? (
-              data.map(
-                (
-                  {
-                    profilePic,
-                    name,
-                    email,
-                    phone,
-                    dob,
-                    city,
-                    district,
-                    province,
-                    country,
-                  },
-                  index
-                ) => {
-                  const isLast = index === data.length - 1;
-                  const rowClass = isLast
-                    ? "p-2"
-                    : "p-2 border-b border-gray-200";
+            {currentItems.length > 0 ? (
+              currentItems.map(
+                ({
+                  profilePic,
+                  name,
+                  email,
+                  phone,
+                  dob,
+                  city,
+                  district,
+                  province,
+                  country,
+                }) => {
+                  const rowClass = "p-3";
 
                   return (
                     <tr key={email}>
@@ -85,7 +113,9 @@ export function Table() {
                       <td className={rowClass}>{name}</td>
                       <td className={rowClass}>{email}</td>
                       <td className={rowClass}>{phone}</td>
-                      <td className={rowClass}>{dob}</td>
+                      <td className={rowClass}>
+                        {dob ? new Date(dob).toLocaleDateString() : "N/A"}
+                      </td>
                       <td className={rowClass}>{city}</td>
                       <td className={rowClass}>{district}</td>
                       <td className={rowClass}>{province}</td>
@@ -113,7 +143,7 @@ export function Table() {
             ) : (
               <tr>
                 <td
-                  colSpan={TABLE_HEAD.length}
+                  colSpan={10} // Updated to match the number of columns
                   className="text-center p-4 text-gray-500"
                 >
                   No data available
@@ -123,15 +153,31 @@ export function Table() {
           </tbody>
         </table>
         <div className="flex items-center justify-between border-t border-gray-200 p-4 mt-4">
-          <button className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 text-xs">
-            Previous
-          </button>
-          <button className="px-4 py-2 text-white border rounded-lg bg-blue-500 hover:bg-blue-600 text-xs">
-            Profiles
-          </button>
-          <button className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 text-xs">
-            Next
-          </button>
+          {currentPage === 1 ? (
+            <div></div>
+          ) : (
+            <button
+              onClick={handlePrevious}
+              disabled={currentPage === 1}
+              className="px-4 py-2 text-white border rounded-lg bg-blue-500 hover:bg-blue-600 text-xs"
+            >
+              Previous
+            </button>
+          )}
+          {
+            currentPage === totalPages ?(
+              <div></div>
+            ):(
+              <button
+              onClick={handleNext}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 text-white border rounded-lg bg-blue-500 hover:bg-blue-600 text-xs"
+            >
+              Next
+            </button>
+            )
+          }
+
         </div>
       </div>
     </>
