@@ -8,6 +8,7 @@ import React, {
   useRef,
 } from "react";
 import { FormReducer, initialState } from "../reducer/FormReducer";
+import { fetchCountries } from "../services/api";
 
 const FormContext = createContext();
 
@@ -19,19 +20,7 @@ export const FormProvider = ({ children }) => {
   const [state, dispatch] = useReducer(FormReducer, initialState);
 
   useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const response = await fetch("https://restcountries.com/v3.1/all");
-        const data = await response.json();
-        // console.log(data);
-
-        dispatch({ type: "SET_COUNTRIES", countries: data });
-      } catch (error) {
-        console.error("Error fetching countries:", error);
-      }
-    };
-
-    fetchCountries();
+    fetchCountries(dispatch);
   }, []);
 
   const setField = (field, value) => {

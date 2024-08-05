@@ -48,7 +48,7 @@ export function FormReducer(state, action) {
     case "RESET_FORM":
       return {
         ...initialState,
-        countries: state.countries, // Keep existing countries
+        countries: state.countries, // keeping countries data
       };
     default:
       return state;
