@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        quicksand: ["Quicksand", "sans-serif"],  // This adds the 'Quicksand' font to your theme
+        quicksand: ["Quicksand", "sans-serif"],
       },
     },
   },
