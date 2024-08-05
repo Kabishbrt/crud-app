@@ -1,5 +1,5 @@
 import React from "react";
-import { useFormContext } from "../context/AppContext";
+import { useFormContext } from "../context/FormContext";
 import { validateField, validateFile } from "../utils/Validation";
 import {
   convertFileToBase64,
@@ -50,7 +50,7 @@ export const Form = () => {
 
     if (Object.keys(errors).length || fileError) {
       setErrors({ ...errors, profilePic: fileError });
-      return; // prevents form submission
+      return; 
     }
 
     let base64ProfilePic;
@@ -62,7 +62,7 @@ export const Form = () => {
         ...prevErrors,
         profilePic: "Failed to encode profile picture",
       }));
-      return; // prevents form submission
+      return;
     }
 
     const { errors: __, countries: ___, ...filteredstate } = state;

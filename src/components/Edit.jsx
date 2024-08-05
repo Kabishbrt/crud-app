@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useDataContext } from "../context/DataContext";
-import { useFormContext } from "../context/AppContext";
+import { useFormContext } from "../context/FormContext";
 import { convertFileToBase64 } from "../utils/LocalStorage"; // Import the utility
 
 export const Edit = () => {
@@ -22,7 +22,7 @@ export const Edit = () => {
       setProfile(profileData);
       setProfilePic(profileData.profilePic);
     } else {
-      navigate("/profiles");
+      navigate("/");
     }
   }, [index, navigate]);
 

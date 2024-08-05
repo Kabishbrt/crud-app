@@ -4,7 +4,7 @@ import { TABLE_HEAD } from "../utils/LocalStorage";
 import { Link } from "react-router-dom";
 
 export const Profiles = () => {
-  const { data } = useDataContext(); // Fetching data from context
+  const { data } = useDataContext();
   const filteredTableHead = TABLE_HEAD.filter(header => header !== "Actions");
 
   return (

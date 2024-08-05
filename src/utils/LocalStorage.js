@@ -5,7 +5,7 @@ export const loadFromLocalStorage = () => {
   
   export const saveToLocalStorage = (submission) => {
     const data = loadFromLocalStorage();
-    data.unshift(submission); // Add the new submission to the top of the array
+    data.unshift(submission); //on top of the array, LIFO
     localStorage.setItem("formSubmissions", JSON.stringify(data));
   };
   

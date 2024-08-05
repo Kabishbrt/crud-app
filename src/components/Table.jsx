@@ -3,18 +3,19 @@ import { useDataContext } from "../context/DataContext";
 import { TABLE_HEAD } from "../utils/LocalStorage";
 import { Link } from "react-router-dom";
 
-export const Table = ({ onEdit }) => {
-  const { data, setData } = useDataContext(); // Assuming setData is provided in the context
-  const [rowsLimit] = useState(5);
-  const [searchQuery, setSearchQuery] = useState("");
+export const Table = () => {
+  const { data, setData } = useDataContext(); 
+  const [recordsperpage] = useState(5);
+  const [searchqry, setSearchQry] = useState("");
   const [filteredData, setFilteredData] = useState(data);
   const [rowsToShow, setRowsToShow] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPage, setTotalPage] = useState(0);
 
+
   useEffect(() => {
-    // Filter data based on search query
-    const lowercasedQuery = searchQuery.toLowerCase();
+    
+    const lowercasedQuery = searchqry.toLowerCase();
     const newFilteredData = data.filter((item) =>
       Object.values(item).some((value) => {
         const lowercasedValue = value.toString().toLowerCase();
@@ -24,21 +25,21 @@ export const Table = ({ onEdit }) => {
 
     setFilteredData(newFilteredData);
 
-    // Calculate total pages and reset the current page
-    const newTotalPage = Math.ceil(newFilteredData.length / rowsLimit);
+ 
+    const newTotalPage = Math.ceil(newFilteredData.length / recordsperpage);
     setTotalPage(newTotalPage);
-    setCurrentPage(0); // Reset to the first page
+    setCurrentPage(0); //
 
-    // Set rows to show for the first page
-    setRowsToShow(newFilteredData.slice(0, rowsLimit));
-  }, [data, searchQuery, rowsLimit]);
+  
+    setRowsToShow(newFilteredData.slice(0, recordsperpage));
+  }, [data, searchqry, recordsperpage]);
 
   useEffect(() => {
-    // Update rows to show when the current page changes
-    const startIndex = rowsLimit * currentPage;
-    const endIndex = startIndex + rowsLimit;
+    
+    const startIndex = recordsperpage * currentPage;
+    const endIndex = startIndex + recordsperpage;
     setRowsToShow(filteredData.slice(startIndex, endIndex));
-  }, [currentPage, filteredData, rowsLimit]);
+  }, [currentPage, filteredData, recordsperpage]);
 
   const nextPage = () => {
     if (currentPage < totalPage - 1) {
@@ -53,7 +54,7 @@ export const Table = ({ onEdit }) => {
   };
 
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
+    setSearchQry(e.target.value);
   };
 
   const handleDelete = (index) => {
@@ -61,15 +62,15 @@ export const Table = ({ onEdit }) => {
       "Are you sure you want to delete this item?"
     );
     if (confirmDelete) {
-      // Remove item from filtered data
+      
       const newFilteredData = filteredData.filter((_, i) => i !== index);
       setFilteredData(newFilteredData);
 
-      // Remove item from original data
+     
       const newData = data.filter((_, i) => i !== index);
       setData(newData);
 
-      // Update localStorage
+      
       localStorage.setItem("formSubmissions", JSON.stringify(newData));
     }
   };
@@ -82,7 +83,7 @@ export const Table = ({ onEdit }) => {
             <h1 className="text-xl font-medium">Registration List</h1>
             <input
               type="text"
-              value={searchQuery}
+              value={searchqry}
               onChange={handleSearchChange}
               placeholder="Search..."
               className="px-3 py-2 text-sm border border-gray-400 rounded-lg shadow-sm"
@@ -154,10 +155,10 @@ export const Table = ({ onEdit }) => {
           </div>
           <div className="w-full flex justify-center sm:justify-between flex-col sm:flex-row gap-5 mt-1.5 px-1 items-center">
             <div className="text-sm">
-              Showing {currentPage === 0 ? 1 : currentPage * rowsLimit + 1} to{" "}
+              Showing {currentPage === 0 ? 1 : currentPage * recordsperpage + 1} to{" "}
               {currentPage === totalPage - 1
                 ? filteredData.length
-                : (currentPage + 1) * rowsLimit}{" "}
+                : (currentPage + 1) * recordsperpage}{" "}
               of {filteredData.length} entries
             </div>
             <div className="flex gap-2">
