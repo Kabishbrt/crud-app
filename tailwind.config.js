@@ -6,10 +6,6 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        white: "white", 
-        none: "none",
-      },
       fontFamily: {
         quicksand: ["Quicksand", "sans-serif"],  // This adds the 'Quicksand' font to your theme
       },
